@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unicare Healthcare - Complete Working Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        .status-indicator {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .bed-occupied {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        .bed-available {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+        .mpesa-button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            transition: all 0.3s ease;
+        }
+        .mpesa-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        .hospital-card {
+            transition: all 0.3s ease;
+        }
+        .hospital-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        .live-badge {
+            animation: pulse 1.5s infinite;
+        }
+        .payment-gate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .payment-gate.hidden {
+            display: none;
+        }
+        .ad-banner {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <!-- Payment Gate - Blocks access until payment -->
+    <div id="paymentGate" class="payment-gate">
+        <div class="glass-card p-8 max-w-md mx-4">
+            <!-- Admin Login Toggle -->
+            <div class="text-center mb-4">
+                <button onclick="toggleAdminLogin()" class="text-sm text-blue-600 hover:text-blue-800 underline">
+                    🔐 Admin Login
+                </button>
+            </div>
+
+            <!-- Admin Login Section -->
+            <div id="adminLoginSection" class="hidden mb-6">
+                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-purple-800 mb-3">🔐 Admin Access</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Admin Username</label>
+                            <input type="text" id="adminUsername" placeholder="Enter username" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Admin Password</label>
+                            <input type="password" id="adminPassword" placeholder="Enter password" 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        </div>
+                        <button onclick="adminLogin()" class="w-full bg-purple-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                            Login as Admin
+                        </button>
+                    </div>
+                    <div id="adminLoginStatus" class="mt-3 hidden"></div>
+                </div>
+            </div>
+
+            <div class="text-center mb-6">
+                <div class="text-6xl mb-4">💳</div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Payment Required</h2>
+                <p class="text-gray-600">Pay 30 KES to access Unicare Healthcare services</p>
+            </div>
+            
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <div class="space-y-2 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Amount:</span>
+                        <span class="font-bold text-green-600">30 KES</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Duration:</span>
+                        <span class="font-bold text-green-600">24 Hours</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Payment Method:</span>
+                        <span class="font-bold text-green-600">M-Pesa</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Your M-Pesa Phone Number</label>
+                    <input type="tel" id="mpesaPhoneGate" placeholder="254XXXXXXXXX" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                </div>
+                <button onclick="initiatePaymentAndUnlock()" class="mpesa-button w-full py-3 px-6 rounded-lg text-white font-semibold">
+                    Pay 30 KES & Unlock Services
+                </button>
+            </div>
+            
+            <div id="paymentStatusGate" class="mt-4 p-3 rounded-lg hidden">
+                <!-- Payment status will appear here -->
+            </div>
+            
+            <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p class="text-sm text-yellow-800">
+                    <strong>⚠️ Important:</strong> You must pay 30 KES to access all healthcare services including hospital finder, bed tracking, emergency contacts, and distance calculation.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto" id="mainContent" style="display: none;">
+        <!-- Advertisement Banner -->
+        <div class="ad-banner">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div class="flex-1">
+                    <h2 class="text-2xl font-bold text-white mb-2">🏥 Unicare Healthcare Kenya</h2>
+                    <p class="text-white text-lg">Your Complete Healthcare Solution - ICU/HDU/Dialysis Tracking, Emergency Services & More!</p>
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        <span class="bg-white text-orange-600 px-3 py-1 rounded-full text-sm font-semibold">Real-time Bed Tracking</span>
+                        <span class="bg-white text-orange-600 px-3 py-1 rounded-full text-sm font-semibold">GPS Hospital Finder</span>
+                        <span class="bg-white text-orange-600 px-3 py-1 rounded-full text-sm font-semibold">M-Pesa Payments</span>
+                        <span class="bg-white text-orange-600 px-3 py-1 rounded-full text-sm font-semibold">24/7 Emergency</span>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl font-bold text-white mb-1">30 KES</div>
+                    <div class="text-white text-sm">24-Hour Access</div>
+                    <button onclick="scrollToPayment()" class="mt-2 bg-white text-orange-600 px-4 py-2 rounded-lg font-semibold hover:bg-orange-50 transition-colors">
+                        Get Access Now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="glass-card p-6 mb-6">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+                        🏥 Unicare Healthcare Kenya
+                    </h1>
+                    <p class="text-gray-600">Complete Healthcare Management System - Working Demo</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-green-500 status-indicator"></div>
+                        <span class="text-sm font-medium text-green-600">Live System</span>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <span id="currentTime"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- M-Pesa Login Section -->
+        <div class="glass-card p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">💳 M-Pesa Login Payment</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                        <h3 class="font-semibold text-green-800 mb-2">Payment Details</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Amount:</span>
+                                <span class="font-bold text-green-600">30 KES</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Duration:</span>
+                                <span class="font-bold text-green-600">24 Hours</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Phone Number:</span>
+                                <span class="font-bold text-green-600">0114023275</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Your M-Pesa Phone Number</label>
+                            <input type="tel" id="mpesaPhone" placeholder="254XXXXXXXXX" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        </div>
+                        <button onclick="initiateMpesaPayment()" class="mpesa-button w-full py-3 px-6 rounded-lg text-white font-semibold">
+                            Pay 30 KES with M-Pesa
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h3 class="font-semibold text-blue-800 mb-2">📋 Payment Information</h3>
+                        <div class="space-y-2 text-sm">
+                            <p><strong>Service:</strong> Unicare Healthcare Login Access</p>
+                            <p><strong>Cost:</strong> 30 KES per 24 hours</p>
+                            <p><strong>Payment Method:</strong> M-Pesa</p>
+                            <p><strong>Business Number:</strong> 0114023275</p>
+                            <p><strong>Account Reference:</strong> UNICARE-USER-ID</p>
+                        </div>
+                        <div id="paymentStatus" class="mt-4 p-3 rounded-lg hidden">
+                            <!-- Payment status will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Kenya Hospitals Map Section -->
+        <div class="glass-card p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold text-gray-800">🗺️ Kenya Hospitals with ICU/HDU/Dialysis</h2>
+                <div class="flex items-center gap-2">
+                    <span class="live-badge text-xs bg-red-500 text-white px-2 py-1 rounded-full">LIVE</span>
+                    <span class="text-sm text-gray-600">Real-time updates</span>
+                </div>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="mb-6">
+                <div class="relative">
+                    <input type="text" id="hospitalSearch" placeholder="Search hospitals by name, county, or facilities..." 
+                           class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           onkeyup="searchHospitals()">
+                    <div class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                <div class="flex gap-2 mt-3">
+                    <button onclick="filterByCounty('')" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-sm hover:bg-gray-300">All Counties</button>
+                    <button onclick="filterByCounty('Nairobi')" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm hover:bg-blue-200">Nairobi</button>
+                    <button onclick="filterByCounty('Mombasa')" class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm hover:bg-green-200">Mombasa</button>
+                    <button onclick="filterByCounty('Kisumu')" class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm hover:bg-purple-200">Kisumu</button>
+                    <button onclick="filterByCounty('Nakuru')" class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm hover:bg-orange-200">Nakuru</button>
+                </div>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-blue-600">15</div>
+                    <div class="text-sm text-gray-600">Total Hospitals</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-green-600">42</div>
+                    <div class="text-sm text-gray-600">ICU Beds Available</div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <div class="text-2xl font-bold text-purple-600">28</div>
+                    <div class="text-sm text-gray-600">Dialysis Machines Available</div>
+                </div>
+            </div>
+
+            <!-- Hospital Cards -->
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4" id="hospitalCards">
+                <!-- Hospitals will be loaded here -->
+            </div>
+            <div id="noResults" class="hidden text-center py-8">
+                <p class="text-gray-500">No hospitals found matching your search.</p>
+            </div>
+        </div>
+
+        <!-- Real-time Bed Tracking Section -->
+        <div class="glass-card p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold text-gray-800">📊 Real-time Bed Tracking</h2>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500 status-indicator"></div>
+                    <span class="text-sm text-green-600">Live Updates</span>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <div class="text-3xl font-bold text-red-600" id="icuOccupied">18</div>
+                    <div class="text-sm text-gray-600">ICU Occupied</div>
+                    <div class="text-xs text-gray-500">of 25 total</div>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-lg">
+                    <div class="text-3xl font-bold text-orange-600" id="hduOccupied">22</div>
+                    <div class="text-sm text-gray-600">HDU Occupied</div>
+                    <div class="text-xs text-gray-500">of 30 total</div>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="text-3xl font-bold text-blue-600" id="dialysisOccupied">12</div>
+                    <div class="text-sm text-gray-600">Dialysis Occupied</div>
+                    <div class="text-xs text-gray-500">of 18 total</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <div class="text-3xl font-bold text-green-600" id="totalAvailable">23</div>
+                    <div class="text-sm text-gray-600">Total Available</div>
+                    <div class="text-xs text-gray-500">beds across all units</div>
+                </div>
+            </div>
+
+            <!-- Bed Visualization -->
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-700">ICU Occupancy Rate</span>
+                        <span class="text-sm font-bold text-red-600" id="icuRate">72%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        <div class="bg-red-500 h-4 rounded-full transition-all duration-500" id="icuBar" style="width: 72%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-700">HDU Occupancy Rate</span>
+                        <span class="text-sm font-bold text-orange-600" id="hduRate">73%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        <div class="bg-orange-500 h-4 rounded-full transition-all duration-500" id="hduBar" style="width: 73%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-700">Dialysis Occupancy Rate</span>
+                        <span class="text-sm font-bold text-blue-600" id="dialysisRate">67%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        <div class="bg-blue-500 h-4 rounded-full transition-all duration-500" id="dialysisBar" style="width: 67%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Emergency Contacts Section -->
+        <div class="glass-card p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">🚨 Emergency Contacts</h2>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p class="text-sm text-blue-800">
+                    <strong>📍 Location-Based Ambulance Numbers:</strong> Ambulance numbers vary by county. Enable your location to see the ambulance service for your area.
+                </p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                    <h3 class="font-semibold text-red-800 mb-2">National Emergency</h3>
+                    <p class="text-2xl font-bold text-red-600">999</p>
+                    <p class="text-sm text-gray-600">24/7 Emergency Services</p>
+                </div>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                    <h3 class="font-semibold text-blue-800 mb-2">Ambulance Service</h3>
+                    <p class="text-2xl font-bold text-blue-600" id="ambulanceNumber">Enable Location</p>
+                    <p class="text-sm text-gray-600" id="ambulanceCounty">Your County Ambulance</p>
+                </div>
+                <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
+                    <h3 class="font-semibold text-green-800 mb-2">Health Hotline</h3>
+                    <p class="text-2xl font-bold text-green-600">0800721316</p>
+                    <p class="text-sm text-gray-600">Medical Advice Line</p>
+                </div>
+            </div>
+            
+            <!-- County-specific ambulance numbers reference -->
+            <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                <h4 class="font-semibold text-gray-800 mb-2">📋 County Ambulance Numbers</h4>
+                <div class="grid md:grid-cols-3 gap-2 text-sm">
+                    <div class="flex justify-between"><span class="text-gray-600">Nairobi:</span><span class="font-bold">0202720000</span></div>
+                    <div class="flex justify-between"><span class="text-gray-600">Mombasa:</span><span class="font-bold">0412222222</span></div>
+                    <div class="flex justify-between"><span class="text-gray-600">Kisumu:</span><span class="font-bold">0572222222</span></div>
+                    <div class="flex justify-between"><span class="text-gray-600">Nakuru:</span><span class="font-bold">0512222222</span></div>
+                    <div class="flex justify-between"><span class="text-gray-600">Eldoret:</span><span class="font-bold">0532222222</span></div>
+                    <div class="flex justify-between"><span class="text-gray-600">Kiambu:</span><span class="font-bold">0202310000</span></div>
+                    <div class="flex justify-between"><span class="text-gray-600">Machakos:</span><span class="font-bold">0202222222</span></div>
+                    <div class="flex justify-between"><span class="text-gray-600">Kakamega:</span><span class="font-bold">0562222222</span></div>
+                    <div class="flex justify-between"><span class="text-gray-600">Meru:</span><span class="font-bold">0642222222</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Distance Calculator Section -->
+        <div class="glass-card p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📍 Distance from Your Location</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <button onclick="getUserLocation()" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors mb-4">
+                        📍 Get My Current Location
+                    </button>
+                    <div id="userLocation" class="bg-gray-50 p-4 rounded-lg">
+                        <p class="text-gray-600">Click above to get your current location</p>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-2">Nearest Hospitals</h3>
+                    <div id="nearestHospitals" class="space-y-2">
+                        <p class="text-gray-600">Enable location to see nearest hospitals</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile App Preview Section -->
+        <div class="glass-card p-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📱 Mobile App - Play Store Ready</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <div class="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg p-6 text-white">
+                        <h3 class="text-xl font-bold mb-2">Unicare Healthcare App</h3>
+                        <p class="text-sm mb-4">Complete healthcare management in your pocket</p>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Real-time bed tracking</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>GPS hospital finder</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>M-Pesa payments</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Emergency contacts</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Offline support</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <h3 class="font-semibold text-gray-800 mb-2">App Features</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex items-start gap-2">
+                                <span class="text-green-500">✓</span>
+                                <span>Progressive Web App (PWA) technology</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-green-500">✓</span>
+                                <span>Installable on Android devices</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-green-500">✓</span>
+                                <span>Push notifications for critical updates</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-green-500">✓</span>
+                                <span>Offline functionality with cached data</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="text-green-500">✓</span>
+                                <span>Mobile-optimized responsive design</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <p class="text-sm text-yellow-800">
+                                <strong>Deployment Status:</strong> Complete deployment guide provided in playstore-deployment.md
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="glass-card p-6 mt-6 text-center">
+            <p class="text-gray-600">🏥 Unicare Healthcare Kenya - Complete Working Demo</p>
+            <p class="text-sm text-gray-500 mt-2">All features demonstrated: ICU/HDU/Dialysis tracking, Kenya hospital locations, M-Pesa integration, emergency contacts, distance calculation, and mobile app deployment</p>
+        </div>
+    </div>
+
+    <script>
+        // Kenya Hospitals Data with ICU/HDU/Dialysis facilities
+        const kenyaHospitals = [
+            {
+                id: 1,
+                name: "Kenyatta National Hospital",
+                county: "Nairobi",
+                location: { lat: -1.2833, lng: 36.8167 },
+                phone: "0202718000",
+                emergency: "0202718000",
+                beds: {
+                    icu: { total: 25, occupied: 18, available: 7 },
+                    hdu: { total: 30, occupied: 22, available: 8 },
+                    dialysis: { total: 18, occupied: 12, available: 6 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 2,
+                name: "Mater Hospital",
+                county: "Nairobi",
+                location: { lat: -1.2667, lng: 36.8333 },
+                phone: "0202720000",
+                emergency: "0202720000",
+                beds: {
+                    icu: { total: 15, occupied: 10, available: 5 },
+                    hdu: { total: 20, occupied: 14, available: 6 },
+                    dialysis: { total: 12, occupied: 8, available: 4 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency"]
+            },
+            {
+                id: 3,
+                name: "Aga Khan University Hospital",
+                county: "Nairobi",
+                location: { lat: -1.2500, lng: 36.8167 },
+                phone: "0203662000",
+                emergency: "0203662000",
+                beds: {
+                    icu: { total: 20, occupied: 12, available: 8 },
+                    hdu: { total: 25, occupied: 15, available: 10 },
+                    dialysis: { total: 15, occupied: 9, available: 6 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 4,
+                name: "Moi Teaching and Referral Hospital",
+                county: "Uasin Gishu",
+                location: { lat: 0.0167, lng: 35.2833 },
+                phone: "0532060000",
+                emergency: "0532060000",
+                beds: {
+                    icu: { total: 30, occupied: 25, available: 5 },
+                    hdu: { total: 35, occupied: 28, available: 7 },
+                    dialysis: { total: 20, occupied: 15, available: 5 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 5,
+                name: "Jomo Kenyatta University Hospital",
+                county: "Kiambu",
+                location: { lat: -1.1833, lng: 36.9667 },
+                phone: "0202310000",
+                emergency: "0202310000",
+                beds: {
+                    icu: { total: 18, occupied: 12, available: 6 },
+                    hdu: { total: 22, occupied: 16, available: 6 },
+                    dialysis: { total: 14, occupied: 10, available: 4 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency"]
+            },
+            {
+                id: 6,
+                name: "Nairobi Hospital",
+                county: "Nairobi",
+                location: { lat: -1.2833, lng: 36.8167 },
+                phone: "0202720000",
+                emergency: "0202720000",
+                beds: {
+                    icu: { total: 22, occupied: 16, available: 6 },
+                    hdu: { total: 28, occupied: 20, available: 8 },
+                    dialysis: { total: 16, occupied: 11, available: 5 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 7,
+                name: "Mombasa County Hospital",
+                county: "Mombasa",
+                location: { lat: -4.0435, lng: 39.6682 },
+                phone: "0412222222",
+                emergency: "0412222222",
+                beds: {
+                    icu: { total: 16, occupied: 11, available: 5 },
+                    hdu: { total: 20, occupied: 14, available: 6 },
+                    dialysis: { total: 12, occupied: 8, available: 4 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 8,
+                name: "Kisumu County Hospital",
+                county: "Kisumu",
+                location: { lat: -0.0917, lng: 34.7680 },
+                phone: "0572222222",
+                emergency: "0572222222",
+                beds: {
+                    icu: { total: 14, occupied: 10, available: 4 },
+                    hdu: { total: 18, occupied: 12, available: 6 },
+                    dialysis: { total: 10, occupied: 7, available: 3 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 9,
+                name: "Nakuru Level 5 Hospital",
+                county: "Nakuru",
+                location: { lat: -0.2844, lng: 36.0689 },
+                phone: "0512222222",
+                emergency: "0512222222",
+                beds: {
+                    icu: { total: 18, occupied: 13, available: 5 },
+                    hdu: { total: 22, occupied: 16, available: 6 },
+                    dialysis: { total: 14, occupied: 10, available: 4 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 10,
+                name: "Eldoret Referral Hospital",
+                county: "Uasin Gishu",
+                location: { lat: 0.5143, lng: 35.2694 },
+                phone: "0532222222",
+                emergency: "0532222222",
+                beds: {
+                    icu: { total: 20, occupied: 15, available: 5 },
+                    hdu: { total: 24, occupied: 18, available: 6 },
+                    dialysis: { total: 16, occupied: 12, available: 4 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 11,
+                name: "Thika Level 5 Hospital",
+                county: "Kiambu",
+                location: { lat: -1.0333, lng: 37.0667 },
+                phone: "0202310000",
+                emergency: "0202310000",
+                beds: {
+                    icu: { total: 12, occupied: 8, available: 4 },
+                    hdu: { total: 16, occupied: 11, available: 5 },
+                    dialysis: { total: 10, occupied: 7, available: 3 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 12,
+                name: "Machakos Level 5 Hospital",
+                county: "Machakos",
+                location: { lat: -1.5167, lng: 37.2667 },
+                phone: "0202222222",
+                emergency: "0202222222",
+                beds: {
+                    icu: { total: 14, occupied: 10, available: 4 },
+                    hdu: { total: 18, occupied: 13, available: 5 },
+                    dialysis: { total: 12, occupied: 8, available: 4 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 13,
+                name: "Kakamega County Referral Hospital",
+                county: "Kakamega",
+                location: { lat: 0.2833, lng: 34.7500 },
+                phone: "0562222222",
+                emergency: "0562222222",
+                beds: {
+                    icu: { total: 16, occupied: 12, available: 4 },
+                    hdu: { total: 20, occupied: 15, available: 5 },
+                    dialysis: { total: 14, occupied: 10, available: 4 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 14,
+                name: "Meru Teaching and Referral Hospital",
+                county: "Meru",
+                location: { lat: 0.0467, lng: 37.6500 },
+                phone: "0642222222",
+                emergency: "0642222222",
+                beds: {
+                    icu: { total: 18, occupied: 13, available: 5 },
+                    hdu: { total: 22, occupied: 16, available: 6 },
+                    dialysis: { total: 16, occupied: 11, available: 5 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 15,
+                name: "Nyeri County Referral Hospital",
+                county: "Nyeri",
+                location: { lat: -0.4167, lng: 36.9500 },
+                phone: "0612222222",
+                emergency: "0612222222",
+                beds: {
+                    icu: { total: 14, occupied: 10, available: 4 },
+                    hdu: { total: 18, occupied: 13, available: 5 },
+                    dialysis: { total: 12, occupied: 8, available: 4 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            }
+        ];
+
+        // User location
+        let userLocation = null;
+        let isPaid = false;
+        let isAdmin = false;
+
+        // Admin credentials (in production, these should be stored securely on the server)
+        const ADMIN_CREDENTIALS = {
+            username: 'admin',
+            password: 'unicare2024'
+        };
+
+        // County ambulance numbers mapping
+        const countyAmbulanceNumbers = {
+            'Nairobi': '0202720000',
+            'Mombasa': '0412222222',
+            'Kisumu': '0572222222',
+            'Nakuru': '0512222222',
+            'Eldoret': '0532222222',
+            'Kiambu': '0202310000',
+            'Machakos': '0202222222',
+            'Kakamega': '0562222222',
+            'Meru': '0642222222',
+            'Nyeri': '0612222222',
+            'Kisii': '0582222222',
+            'Bungoma': '0552222222',
+            'Kericho': '0522222222',
+            'Baringo': '0542222222',
+            'Turkana': '0542222222',
+            'West Pokot': '0542222222',
+            'Samburu': '0622222222',
+            'Trans Nzoia': '0532222222',
+            'Uasin Gishu': '0532222222',
+            'Elgeyo Marakwet': '0532222222',
+            'Nandi': '0522222222',
+            'Bomet': '0522222222',
+            'Laikipia': '0622222222',
+            'Nyandarua': '0612222222',
+            'Muranga': '0202310000',
+            'Kirinyaga': '0612222222',
+            'Embu': '0612222222',
+            'Tharaka Nithi': '0612222222',
+            'Kitui': '0202222222',
+            'Makueni': '0202222222',
+            'Machakos': '0202222222',
+            'Kajiado': '0202720000',
+            'Kwale': '0412222222',
+            'Kilifi': '0412222222',
+            'Tana River': '0432222222',
+            'Lamu': '0432222222',
+            'Taita Taveta': '0432222222',
+            'Garissa': '0572222222',
+            'Wajir': '0572222222',
+            'Mandera': '0572222222',
+            'Marsabit': '0622222222',
+            'Isiolo': '0622222222',
+            'Meru': '0642222222',
+            'Tharaka Nithi': '0612222222',
+            'Embu': '0612222222',
+            'Kitui': '0202222222',
+            'Machakos': '0202222222',
+            'Makueni': '0202222222',
+            'Nyamira': '0582222222',
+            'Kisii': '0582222222',
+            'Homa Bay': '0572222222',
+            'Migori': '0572222222',
+            'Kisumu': '0572222222',
+            'Siaya': '0572222222',
+            'Busia': '0552222222',
+            'Bungoma': '0552222222',
+            'Kakamega': '0562222222',
+            'Vihiga': '0562222222'
+        };
+
+        // Initialize the demo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is admin
+            const adminStatus = localStorage.getItem('unicareAdmin');
+            if (adminStatus === 'true') {
+                isAdmin = true;
+                hidePaymentGate();
+                loadHospitalCards();
+                updateTime();
+                startRealTimeUpdates();
+                return;
+            }
+
+            // Check if user has already paid (stored in localStorage)
+            const paidStatus = localStorage.getItem('unicarePaid');
+            const paidTime = localStorage.getItem('unicarePaidTime');
+            
+            if (paidStatus === 'true' && paidTime) {
+                const paidDate = new Date(paidTime);
+                const now = new Date();
+                const hoursPassed = (now - paidDate) / (1000 * 60 * 60);
+                
+                if (hoursPassed < 24) {
+                    isPaid = true;
+                    hidePaymentGate();
+                    loadHospitalCards();
+                    updateTime();
+                    startRealTimeUpdates();
+                } else {
+                    // Payment expired
+                    localStorage.removeItem('unicarePaid');
+                    localStorage.removeItem('unicarePaidTime');
+                    showPaymentGate();
+                }
+            } else {
+                showPaymentGate();
+            }
+        });
+
+        // Show payment gate
+        function showPaymentGate() {
+            document.getElementById('paymentGate').classList.remove('hidden');
+            document.getElementById('mainContent').style.display = 'none';
+        }
+
+        // Hide payment gate
+        function hidePaymentGate() {
+            document.getElementById('paymentGate').classList.add('hidden');
+            document.getElementById('mainContent').style.display = 'block';
+        }
+
+        // Initiate payment and unlock
+        function initiatePaymentAndUnlock() {
+            const phone = document.getElementById('mpesaPhoneGate').value;
+            const statusDiv = document.getElementById('paymentStatusGate');
+            
+            if (!phone) {
+                alert('Please enter your M-Pesa phone number');
+                return;
+            }
+            
+            if (!phone.match(/^254\d{9}$/)) {
+                alert('Please enter a valid Kenyan phone number (254XXXXXXXXX)');
+                return;
+            }
+            
+            statusDiv.className = 'mt-4 p-3 rounded-lg bg-yellow-50 border border-yellow-200';
+            statusDiv.innerHTML = '<p class="text-yellow-800">⏳ Processing payment...</p>';
+            statusDiv.classList.remove('hidden');
+            
+            // Simulate payment processing
+            setTimeout(() => {
+                statusDiv.className = 'mt-4 p-3 rounded-lg bg-green-50 border border-green-200';
+                statusDiv.innerHTML = `
+                    <p class="text-green-800 font-semibold">✅ Payment Successful!</p>
+                    <p class="text-sm text-green-700">30 KES paid successfully</p>
+                    <p class="text-sm text-green-700">24-hour access granted</p>
+                `;
+                
+                // Store payment status
+                localStorage.setItem('unicarePaid', 'true');
+                localStorage.setItem('unicarePaidTime', new Date().toISOString());
+                isPaid = true;
+                
+                // Unlock the content after 2 seconds
+                setTimeout(() => {
+                    hidePaymentGate();
+                    loadHospitalCards();
+                    updateTime();
+                    startRealTimeUpdates();
+                }, 2000);
+            }, 3000);
+        }
+
+        // Scroll to payment
+        function scrollToPayment() {
+            // Show payment gate
+            showPaymentGate();
+        }
+
+        // Toggle admin login section
+        function toggleAdminLogin() {
+            const adminSection = document.getElementById('adminLoginSection');
+            adminSection.classList.toggle('hidden');
+        }
+
+        // Admin login
+        function adminLogin() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            const statusDiv = document.getElementById('adminLoginStatus');
+            
+            if (!username || !password) {
+                statusDiv.className = 'mt-3 p-3 rounded-lg bg-red-50 border border-red-200';
+                statusDiv.innerHTML = '<p class="text-red-800">Please enter both username and password</p>';
+                statusDiv.classList.remove('hidden');
+                return;
+            }
+            
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                // Admin login successful
+                statusDiv.className = 'mt-3 p-3 rounded-lg bg-green-50 border border-green-200';
+                statusDiv.innerHTML = '<p class="text-green-800 font-semibold">✅ Admin login successful!</p>';
+                statusDiv.classList.remove('hidden');
+                
+                // Store admin status
+                localStorage.setItem('unicareAdmin', 'true');
+                isAdmin = true;
+                
+                // Unlock the content after 1 second
+                setTimeout(() => {
+                    hidePaymentGate();
+                    loadHospitalCards();
+                    updateTime();
+                    startRealTimeUpdates();
+                }, 1000);
+            } else {
+                // Invalid credentials
+                statusDiv.className = 'mt-3 p-3 rounded-lg bg-red-50 border border-red-200';
+                statusDiv.innerHTML = '<p class="text-red-800">❌ Invalid username or password</p>';
+                statusDiv.classList.remove('hidden');
+            }
+        }
+
+        // Load hospital cards
+        function loadHospitalCards(hospitalsToLoad = kenyaHospitals) {
+            const container = document.getElementById('hospitalCards');
+            const noResults = document.getElementById('noResults');
+            
+            if (hospitalsToLoad.length === 0) {
+                container.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+            
+            noResults.classList.add('hidden');
+            container.innerHTML = hospitalsToLoad.map(hospital => `
+                <div class="hospital-card bg-white border border-gray-200 rounded-lg p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="font-semibold text-gray-800">${hospital.name}</h3>
+                            <p class="text-sm text-gray-600">${hospital.county} County</p>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <div class="w-2 h-2 rounded-full bg-green-500 status-indicator"></div>
+                            <span class="text-xs text-green-600">Online</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2 mb-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">ICU:</span>
+                            <span class="font-semibold ${hospital.beds.icu.available > 0 ? 'text-green-600' : 'text-red-600'}">
+                                ${hospital.beds.icu.available}/${hospital.beds.icu.total}
+                            </span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">HDU:</span>
+                            <span class="font-semibold ${hospital.beds.hdu.available > 0 ? 'text-green-600' : 'text-red-600'}">
+                                ${hospital.beds.hdu.available}/${hospital.beds.hdu.total}
+                            </span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Dialysis:</span>
+                            <span class="font-semibold ${hospital.beds.dialysis.available > 0 ? 'text-green-600' : 'text-red-600'}">
+                                ${hospital.beds.dialysis.available}/${hospital.beds.dialysis.total}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2 mb-3">
+                        ${hospital.facilities.map(facility => `
+                            <span class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">${facility}</span>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-gray-600">📞 ${hospital.phone}</p>
+                            <p class="text-xs text-gray-500">🚨 ${hospital.emergency}</p>
+                        </div>
+                        <button onclick="callHospital('${hospital.phone}')" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">
+                            Call
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Search hospitals
+        function searchHospitals() {
+            const searchTerm = document.getElementById('hospitalSearch').value.toLowerCase();
+            const filteredHospitals = kenyaHospitals.filter(hospital => {
+                return hospital.name.toLowerCase().includes(searchTerm) ||
+                       hospital.county.toLowerCase().includes(searchTerm) ||
+                       hospital.facilities.some(facility => facility.toLowerCase().includes(searchTerm));
+            });
+            loadHospitalCards(filteredHospitals);
+        }
+
+        // Filter by county
+        function filterByCounty(county) {
+            if (county === '') {
+                loadHospitalCards(kenyaHospitals);
+                document.getElementById('hospitalSearch').value = '';
+            } else {
+                const filteredHospitals = kenyaHospitals.filter(hospital => hospital.county === county);
+                loadHospitalCards(filteredHospitals);
+                document.getElementById('hospitalSearch').value = county;
+            }
+        }
+
+        // M-Pesa payment initiation
+        function initiateMpesaPayment() {
+            const phone = document.getElementById('mpesaPhone').value;
+            const statusDiv = document.getElementById('paymentStatus');
+            
+            if (!phone) {
+                alert('Please enter your M-Pesa phone number');
+                return;
+            }
+            
+            if (!phone.match(/^254\d{9}$/)) {
+                alert('Please enter a valid Kenyan phone number (254XXXXXXXXX)');
+                return;
+            }
+            
+            statusDiv.className = 'mt-4 p-3 rounded-lg bg-yellow-50 border border-yellow-200';
+            statusDiv.innerHTML = '<p class="text-yellow-800">⏳ Processing payment...</p>';
+            statusDiv.classList.remove('hidden');
+            
+            // Simulate payment processing
+            setTimeout(() => {
+                statusDiv.className = 'mt-4 p-3 rounded-lg bg-green-50 border border-green-200';
+                statusDiv.innerHTML = `
+                    <p class="text-green-800 font-semibold">✅ Payment Successful!</p>
+                    <p class="text-sm text-green-700">30 KES paid to 0114023275</p>
+                    <p class="text-sm text-green-700">24-hour access granted</p>
+                `;
+            }, 3000);
+        }
+
+        // Get user location
+        function getUserLocation() {
+            const locationDiv = document.getElementById('userLocation');
+            
+            if (navigator.geolocation) {
+                locationDiv.innerHTML = '<p class="text-blue-600">📍 Getting your location...</p>';
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        
+                        locationDiv.innerHTML = `
+                            <p class="text-green-600 font-semibold">📍 Location Found!</p>
+                            <p class="text-sm text-gray-600">Lat: ${userLocation.lat.toFixed(4)}, Lng: ${userLocation.lng.toFixed(4)}</p>
+                        `;
+                        
+                        // Detect county and update ambulance number
+                        detectCountyAndUpdateAmbulance();
+                        calculateDistances();
+                    },
+                    (error) => {
+                        locationDiv.innerHTML = '<p class="text-red-600">❌ Unable to get location. Please enable location services.</p>';
+                    }
+                );
+            } else {
+                locationDiv.innerHTML = '<p class="text-red-600">❌ Geolocation not supported by your browser.</p>';
+            }
+        }
+
+        // Detect county from location and update ambulance number
+        function detectCountyAndUpdateAmbulance() {
+            if (!userLocation) return;
+            
+            // Simple county detection based on coordinates (simplified for demo)
+            // In production, this would use a proper geocoding API
+            let detectedCounty = 'Nairobi'; // Default
+            
+            // Approximate county boundaries (simplified)
+            const lat = userLocation.lat;
+            const lng = userLocation.lng;
+            
+            if (lat > -1.5 && lat < -1.0 && lng > 36.5 && lng < 37.2) {
+                detectedCounty = 'Nairobi';
+            } else if (lat > -4.2 && lat < -4.0 && lng > 39.5 && lng < 40.0) {
+                detectedCounty = 'Mombasa';
+            } else if (lat > -0.2 && lat < 0.2 && lng > 34.5 && lng < 35.0) {
+                detectedCounty = 'Kisumu';
+            } else if (lat > -0.5 && lat < 0.0 && lng > 36.0 && lng < 36.5) {
+                detectedCounty = 'Nakuru';
+            } else if (lat > 0.0 && lat < 0.5 && lng > 35.0 && lng < 35.5) {
+                detectedCounty = 'Eldoret';
+            } else if (lat > -1.2 && lat < -0.8 && lng > 36.8 && lng < 37.2) {
+                detectedCounty = 'Kiambu';
+            }
+            
+            // Update ambulance number based on detected county
+            const ambulanceNumber = countyAmbulanceNumbers[detectedCounty] || '0202720000';
+            
+            document.getElementById('ambulanceNumber').textContent = ambulanceNumber;
+            document.getElementById('ambulanceCounty').textContent = `${detectedCounty} County Ambulance`;
+            
+            // Make ambulance number clickable
+            document.getElementById('ambulanceNumber').style.cursor = 'pointer';
+            document.getElementById('ambulanceNumber').onclick = function() {
+                window.location.href = `tel:${ambulanceNumber}`;
+            };
+        }
+
+        // Calculate distances from user location
+        function calculateDistances() {
+            if (!userLocation) return;
+            
+            kenyaHospitals.forEach(hospital => {
+                hospital.distance = calculateDistance(
+                    userLocation.lat,
+                    userLocation.lng,
+                    hospital.location.lat,
+                    hospital.location.lng
+                );
+            });
+            
+            // Sort by distance
+            kenyaHospitals.sort((a, b) => a.distance - b.distance);
+            
+            // Display nearest hospitals
+            const nearestDiv = document.getElementById('nearestHospitals');
+            nearestDiv.innerHTML = kenyaHospitals.slice(0, 5).map((hospital, index) => `
+                <div class="flex justify-between items-center bg-white p-3 rounded border border-gray-200">
+                    <div>
+                        <p class="font-medium text-gray-800">${index + 1}. ${hospital.name}</p>
+                        <p class="text-sm text-gray-600">${hospital.county} County</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-blue-600">${hospital.distance.toFixed(1)} km</p>
+                        <p class="text-xs text-green-600">${hospital.beds.icu.available + hospital.beds.hdu.available + hospital.beds.dialysis.available} beds available</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Calculate distance between two points (Haversine formula)
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth's radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // Call hospital
+        function callHospital(phone) {
+            window.location.href = `tel:${phone}`;
+        }
+
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('en-KE', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            setTimeout(updateTime, 1000);
+        }
+
+        // Start real-time updates simulation
+        function startRealTimeUpdates() {
+            setInterval(() => {
+                // Simulate real-time bed changes
+                const icuOccupied = document.getElementById('icuOccupied');
+                const hduOccupied = document.getElementById('hduOccupied');
+                const dialysisOccupied = document.getElementById('dialysisOccupied');
+                const totalAvailable = document.getElementById('totalAvailable');
+                
+                // Random small changes
+                const icuChange = Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0;
+                const hduChange = Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0;
+                const dialysisChange = Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0;
+                
+                const newIcu = Math.max(0, Math.min(25, parseInt(icuOccupied.textContent) + icuChange));
+                const newHdu = Math.max(0, Math.min(30, parseInt(hduOccupied.textContent) + hduChange));
+                const newDialysis = Math.max(0, Math.min(18, parseInt(dialysisOccupied.textContent) + dialysisChange));
+                
+                icuOccupied.textContent = newIcu;
+                hduOccupied.textContent = newHdu;
+                dialysisOccupied.textContent = newDialysis;
+                totalAvailable.textContent = (25 - newIcu) + (30 - newHdu) + (18 - newDialysis);
+                
+                // Update rates
+                const icuRate = Math.round((newIcu / 25) * 100);
+                const hduRate = Math.round((newHdu / 30) * 100);
+                const dialysisRate = Math.round((newDialysis / 18) * 100);
+                
+                document.getElementById('icuRate').textContent = icuRate + '%';
+                document.getElementById('hduRate').textContent = hduRate + '%';
+                document.getElementById('dialysisRate').textContent = dialysisRate + '%';
+                
+                document.getElementById('icuBar').style.width = icuRate + '%';
+                document.getElementById('hduBar').style.width = hduRate + '%';
+                document.getElementById('dialysisBar').style.width = dialysisRate + '%';
+                
+            }, 5000); // Update every 5 seconds
+        }
+    </script>
+</body>
+</html>
