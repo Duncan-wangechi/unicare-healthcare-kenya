@@ -6,6 +6,14 @@
     <title>Unicare Healthcare - Complete Working Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -279,15 +287,15 @@
             
             <div class="grid md:grid-cols-3 gap-4 mb-6">
                 <div class="bg-blue-50 p-4 rounded-lg">
-                    <div class="text-2xl font-bold text-blue-600">15</div>
+                    <div class="text-2xl font-bold text-blue-600">30</div>
                     <div class="text-sm text-gray-600">Total Hospitals</div>
                 </div>
                 <div class="bg-green-50 p-4 rounded-lg">
-                    <div class="text-2xl font-bold text-green-600">42</div>
+                    <div class="text-2xl font-bold text-green-600">84</div>
                     <div class="text-sm text-gray-600">ICU Beds Available</div>
                 </div>
                 <div class="bg-purple-50 p-4 rounded-lg">
-                    <div class="text-2xl font-bold text-purple-600">28</div>
+                    <div class="text-2xl font-bold text-purple-600">56</div>
                     <div class="text-sm text-gray-600">Dialysis Machines Available</div>
                 </div>
             </div>
@@ -728,6 +736,231 @@
                     icu: { total: 14, occupied: 10, available: 4 },
                     hdu: { total: 18, occupied: 13, available: 5 },
                     dialysis: { total: 12, occupied: 8, available: 4 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 16,
+                name: "Bungoma County Referral Hospital",
+                county: "Bungoma",
+                location: { lat: 0.5635, lng: 34.5608 },
+                phone: "0552222222",
+                emergency: "0552222222",
+                beds: {
+                    icu: { total: 12, occupied: 9, available: 3 },
+                    hdu: { total: 16, occupied: 12, available: 4 },
+                    dialysis: { total: 10, occupied: 7, available: 3 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 17,
+                name: "Busia County Referral Hospital",
+                county: "Busia",
+                location: { lat: 0.4605, lng: 34.1058 },
+                phone: "0553333333",
+                emergency: "0553333333",
+                beds: {
+                    icu: { total: 10, occupied: 7, available: 3 },
+                    hdu: { total: 14, occupied: 10, available: 4 },
+                    dialysis: { total: 8, occupied: 6, available: 2 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency"]
+            },
+            {
+                id: 18,
+                name: "Siaya County Referral Hospital",
+                county: "Siaya",
+                location: { lat: 0.0619, lng: 34.2782 },
+                phone: "0573333333",
+                emergency: "0573333333",
+                beds: {
+                    icu: { total: 12, occupied: 8, available: 4 },
+                    hdu: { total: 16, occupied: 11, available: 5 },
+                    dialysis: { total: 10, occupied: 7, available: 3 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 19,
+                name: "Homa Bay County Referral Hospital",
+                county: "Homa Bay",
+                location: { lat: -0.5183, lng: 34.4551 },
+                phone: "0574444444",
+                emergency: "0574444444",
+                beds: {
+                    icu: { total: 14, occupied: 10, available: 4 },
+                    hdu: { total: 18, occupied: 13, available: 5 },
+                    dialysis: { total: 12, occupied: 8, available: 4 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 20,
+                name: "Migori County Referral Hospital",
+                county: "Migori",
+                location: { lat: -1.0634, lng: 34.4760 },
+                phone: "0575555555",
+                emergency: "0575555555",
+                beds: {
+                    icu: { total: 12, occupied: 9, available: 3 },
+                    hdu: { total: 16, occupied: 12, available: 4 },
+                    dialysis: { total: 10, occupied: 7, available: 3 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 21,
+                name: "Kisii Teaching and Referral Hospital",
+                county: "Kisii",
+                location: { lat: -0.6833, lng: 34.7667 },
+                phone: "0582222222",
+                emergency: "0582222222",
+                beds: {
+                    icu: { total: 16, occupied: 12, available: 4 },
+                    hdu: { total: 20, occupied: 15, available: 5 },
+                    dialysis: { total: 14, occupied: 10, available: 4 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 22,
+                name: "Nyamira County Referral Hospital",
+                county: "Nyamira",
+                location: { lat: -0.5500, lng: 35.0000 },
+                phone: "0583333333",
+                emergency: "0583333333",
+                beds: {
+                    icu: { total: 10, occupied: 7, available: 3 },
+                    hdu: { total: 14, occupied: 10, available: 4 },
+                    dialysis: { total: 8, occupied: 6, available: 2 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency"]
+            },
+            {
+                id: 23,
+                name: "Bomet County Referral Hospital",
+                county: "Bomet",
+                location: { lat: -0.7833, lng: 35.3500 },
+                phone: "0524444444",
+                emergency: "0524444444",
+                beds: {
+                    icu: { total: 12, occupied: 9, available: 3 },
+                    hdu: { total: 16, occupied: 12, available: 4 },
+                    dialysis: { total: 10, occupied: 7, available: 3 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 24,
+                name: "Kericho County Referral Hospital",
+                county: "Kericho",
+                location: { lat: -0.3667, lng: 35.2833 },
+                phone: "0525555555",
+                emergency: "0525555555",
+                beds: {
+                    icu: { total: 14, occupied: 10, available: 4 },
+                    hdu: { total: 18, occupied: 13, available: 5 },
+                    dialysis: { total: 12, occupied: 8, available: 4 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 25,
+                name: "Baringo County Referral Hospital",
+                county: "Baringo",
+                location: { lat: 0.4667, lng: 35.9667 },
+                phone: "0536666666",
+                emergency: "0536666666",
+                beds: {
+                    icu: { total: 10, occupied: 7, available: 3 },
+                    hdu: { total: 14, occupied: 10, available: 4 },
+                    dialysis: { total: 8, occupied: 6, available: 2 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency"]
+            },
+            {
+                id: 26,
+                name: "West Pokot County Referral Hospital",
+                county: "West Pokot",
+                location: { lat: 1.2333, lng: 35.1167 },
+                phone: "0537777777",
+                emergency: "0537777777",
+                beds: {
+                    icu: { total: 8, occupied: 5, available: 3 },
+                    hdu: { total: 12, occupied: 8, available: 4 },
+                    dialysis: { total: 6, occupied: 4, available: 2 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency"]
+            },
+            {
+                id: 27,
+                name: "Turkana County Referral Hospital",
+                county: "Turkana",
+                location: { lat: 3.5833, lng: 34.1833 },
+                phone: "0542222222",
+                emergency: "0542222222",
+                beds: {
+                    icu: { total: 10, occupied: 7, available: 3 },
+                    hdu: { total: 14, occupied: 10, available: 4 },
+                    dialysis: { total: 8, occupied: 6, available: 2 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 28,
+                name: "Marsabit County Referral Hospital",
+                county: "Marsabit",
+                location: { lat: 2.2333, lng: 37.9167 },
+                phone: "0543333333",
+                emergency: "0543333333",
+                beds: {
+                    icu: { total: 8, occupied: 5, available: 3 },
+                    hdu: { total: 12, occupied: 8, available: 4 },
+                    dialysis: { total: 6, occupied: 4, available: 2 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency"]
+            },
+            {
+                id: 29,
+                name: "Isiolo County Referral Hospital",
+                county: "Isiolo",
+                location: { lat: 0.3500, lng: 37.5833 },
+                phone: "0544444444",
+                emergency: "0544444444",
+                beds: {
+                    icu: { total: 10, occupied: 7, available: 3 },
+                    hdu: { total: 14, occupied: 10, available: 4 },
+                    dialysis: { total: 8, occupied: 6, available: 2 }
+                },
+                distance: 0,
+                facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
+            },
+            {
+                id: 30,
+                name: "Kitui County Referral Hospital",
+                county: "Kitui",
+                location: { lat: -1.3667, lng: 38.0167 },
+                phone: "0442222222",
+                emergency: "0442222222",
+                beds: {
+                    icu: { total: 12, occupied: 9, available: 3 },
+                    hdu: { total: 16, occupied: 12, available: 4 },
+                    dialysis: { total: 10, occupied: 7, available: 3 }
                 },
                 distance: 0,
                 facilities: ["ICU", "HDU", "Dialysis", "Emergency", "Ambulance"]
