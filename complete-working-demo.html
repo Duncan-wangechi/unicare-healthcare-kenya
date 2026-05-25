@@ -1112,6 +1112,24 @@
             updateTime();
             startRealTimeUpdates();
             initializeAppointmentBooking();
+
+            // Automatically request location permission for accurate distances
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        calculateDistances();
+                        loadHospitalCards(); // Reload cards to show distances
+                    },
+                    (error) => {
+                        // Location permission denied - user can manually enable it
+                        console.log('Location permission not granted');
+                    }
+                );
+            }
         });
 
         // Show payment gate
@@ -1351,6 +1369,7 @@
                         <div>
                             <h3 class="font-semibold text-gray-800">${hospital.name}</h3>
                             <p class="text-sm text-gray-600">${hospital.county} County</p>
+                            ${userLocation && hospital.distance > 0 ? `<p class="text-xs text-blue-600 font-medium">📍 ${hospital.distance.toFixed(1)} km away</p>` : ''}
                         </div>
                         <div class="flex items-center gap-1">
                             <div class="w-2 h-2 rounded-full bg-green-500 status-indicator"></div>
