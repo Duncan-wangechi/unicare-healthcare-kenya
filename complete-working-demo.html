@@ -256,6 +256,13 @@
             </div>
         </div>
 
+        <!-- Demo Notice -->
+        <div class="glass-card p-4 mb-6 bg-yellow-50 border border-yellow-200">
+            <p class="text-sm text-yellow-800">
+                <strong>🎉 Demo Version:</strong> This is a free demo. The payment gate will be enabled in the production Play Store version.
+            </p>
+        </div>
+
         <!-- Kenya Hospitals Map Section -->
         <div class="glass-card p-6 mb-6">
             <div class="flex items-center justify-between mb-4">
@@ -1098,41 +1105,13 @@
 
         // Initialize the demo
         document.addEventListener('DOMContentLoaded', function() {
-            // Check if user is admin
-            const adminStatus = localStorage.getItem('unicareAdmin');
-            if (adminStatus === 'true') {
-                isAdmin = true;
-                hidePaymentGate();
-                loadHospitalCards();
-                updateTime();
-                startRealTimeUpdates();
-                return;
-            }
-
-            // Check if user has already paid (stored in localStorage)
-            const paidStatus = localStorage.getItem('unicarePaid');
-            const paidTime = localStorage.getItem('unicarePaidTime');
-            
-            if (paidStatus === 'true' && paidTime) {
-                const paidDate = new Date(paidTime);
-                const now = new Date();
-                const hoursPassed = (now - paidDate) / (1000 * 60 * 60);
-                
-                if (hoursPassed < 24) {
-                    isPaid = true;
-                    hidePaymentGate();
-                    loadHospitalCards();
-                    updateTime();
-                    startRealTimeUpdates();
-                } else {
-                    // Payment expired
-                    localStorage.removeItem('unicarePaid');
-                    localStorage.removeItem('unicarePaidTime');
-                    showPaymentGate();
-                }
-            } else {
-                showPaymentGate();
-            }
+            // Demo version - no payment gate required
+            // Payment gate will be enabled in production Play Store version
+            hidePaymentGate();
+            loadHospitalCards();
+            updateTime();
+            startRealTimeUpdates();
+            initializeAppointmentBooking();
         });
 
         // Show payment gate
