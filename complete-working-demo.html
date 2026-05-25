@@ -438,6 +438,62 @@
             </div>
         </div>
 
+        <!-- Appointment Booking Section -->
+        <div class="glass-card p-6 mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📅 Book Hospital Appointment</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Select Hospital</label>
+                            <select id="appointmentHospital" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="">Choose a hospital...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Appointment Type</label>
+                            <select id="appointmentType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                <option value="icu">ICU Admission</option>
+                                <option value="hdu">HDU Admission</option>
+                                <option value="dialysis">Dialysis Session</option>
+                                <option value="consultation">General Consultation</option>
+                                <option value="emergency">Emergency Visit</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Date</label>
+                            <input type="date" id="appointmentDate" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Preferred Time</label>
+                            <input type="time" id="appointmentTime" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Patient Name</label>
+                            <input type="text" id="patientName" placeholder="Enter patient name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                            <input type="tel" id="patientPhone" placeholder="07XXXXXXXXX" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Visit</label>
+                            <textarea id="appointmentReason" rows="3" placeholder="Describe your reason for the appointment" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        <button onclick="bookAppointment()" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            📅 Book Appointment
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800 mb-2">Your Appointments</h3>
+                    <div id="appointmentsList" class="space-y-2">
+                        <p class="text-gray-600">No appointments booked yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Mobile App Preview Section -->
         <div class="glass-card p-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">📱 Mobile App - Play Store Ready</h2>
@@ -1146,6 +1202,120 @@
             adminSection.classList.toggle('hidden');
         }
 
+        // Populate hospital dropdown for appointments
+        function populateHospitalDropdown() {
+            const select = document.getElementById('appointmentHospital');
+            select.innerHTML = '<option value="">Choose a hospital...</option>';
+            
+            kenyaHospitals.forEach(hospital => {
+                const option = document.createElement('option');
+                option.value = hospital.id;
+                option.textContent = `${hospital.name} - ${hospital.county}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Book appointment
+        function bookAppointment() {
+            const hospitalId = document.getElementById('appointmentHospital').value;
+            const appointmentType = document.getElementById('appointmentType').value;
+            const appointmentDate = document.getElementById('appointmentDate').value;
+            const appointmentTime = document.getElementById('appointmentTime').value;
+            const patientName = document.getElementById('patientName').value;
+            const patientPhone = document.getElementById('patientPhone').value;
+            const appointmentReason = document.getElementById('appointmentReason').value;
+
+            // Validation
+            if (!hospitalId || !appointmentDate || !appointmentTime || !patientName || !patientPhone) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // Get hospital details
+            const hospital = kenyaHospitals.find(h => h.id == hospitalId);
+            
+            // Create appointment object
+            const appointment = {
+                id: Date.now(),
+                hospital: hospital.name,
+                hospitalId: hospitalId,
+                type: appointmentType,
+                date: appointmentDate,
+                time: appointmentTime,
+                patientName: patientName,
+                patientPhone: patientPhone,
+                reason: appointmentReason,
+                status: 'Pending',
+                createdAt: new Date().toISOString()
+            };
+
+            // Store appointments in localStorage
+            let appointments = JSON.parse(localStorage.getItem('unicareAppointments') || '[]');
+            appointments.push(appointment);
+            localStorage.setItem('unicareAppointments', JSON.stringify(appointments));
+
+            // Show success message
+            alert(`Appointment booked successfully!\n\nHospital: ${hospital.name}\nDate: ${appointmentDate}\nTime: ${appointmentTime}\n\nYou will receive a confirmation call shortly.`);
+
+            // Clear form
+            document.getElementById('appointmentHospital').value = '';
+            document.getElementById('appointmentDate').value = '';
+            document.getElementById('appointmentTime').value = '';
+            document.getElementById('patientName').value = '';
+            document.getElementById('patientPhone').value = '';
+            document.getElementById('appointmentReason').value = '';
+
+            // Refresh appointments list
+            loadAppointments();
+        }
+
+        // Load appointments
+        function loadAppointments() {
+            const container = document.getElementById('appointmentsList');
+            const appointments = JSON.parse(localStorage.getItem('unicareAppointments') || '[]');
+
+            if (appointments.length === 0) {
+                container.innerHTML = '<p class="text-gray-600">No appointments booked yet</p>';
+                return;
+            }
+
+            container.innerHTML = appointments.map(apt => `
+                <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">${apt.hospital}</h4>
+                            <p class="text-sm text-gray-600">${apt.type.toUpperCase()} - ${apt.date} at ${apt.time}</p>
+                        </div>
+                        <span class="px-2 py-1 text-xs rounded-full ${apt.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}">
+                            ${apt.status}
+                        </span>
+                    </div>
+                    <div class="text-sm text-gray-600">
+                        <p><strong>Patient:</strong> ${apt.patientName}</p>
+                        <p><strong>Phone:</strong> ${apt.patientPhone}</p>
+                        ${apt.reason ? `<p><strong>Reason:</strong> ${apt.reason}</p>` : ''}
+                    </div>
+                    <button onclick="cancelAppointment(${apt.id})" class="mt-2 text-sm text-red-600 hover:text-red-800">
+                        Cancel Appointment
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Cancel appointment
+        function cancelAppointment(appointmentId) {
+            if (!confirm('Are you sure you want to cancel this appointment?')) {
+                return;
+            }
+
+            let appointments = JSON.parse(localStorage.getItem('unicareAppointments') || '[]');
+            appointments = appointments.filter(apt => apt.id !== appointmentId);
+            localStorage.setItem('unicareAppointments', JSON.stringify(appointments));
+
+            loadAppointments();
+            alert('Appointment cancelled successfully');
+        }
+
         // Admin login
         function adminLogin() {
             const username = document.getElementById('adminUsername').value;
@@ -1433,6 +1603,12 @@
             setTimeout(updateTime, 1000);
         }
 
+        // Initialize appointment booking
+        function initializeAppointmentBooking() {
+            populateHospitalDropdown();
+            loadAppointments();
+        }
+
         // Start real-time updates simulation
         function startRealTimeUpdates() {
             setInterval(() => {
@@ -1471,6 +1647,11 @@
                 
             }, 5000); // Update every 5 seconds
         }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAppointmentBooking();
+        });
     </script>
 </body>
 </html>
