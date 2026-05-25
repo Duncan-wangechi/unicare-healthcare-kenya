@@ -1130,6 +1130,11 @@
                     }
                 );
             }
+
+            // Auto-reload page every 5 minutes to ensure latest version
+            setTimeout(() => {
+                location.reload();
+            }, 300000); // 5 minutes in milliseconds
         });
 
         // Show payment gate
