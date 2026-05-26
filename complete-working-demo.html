@@ -1135,7 +1135,39 @@
             setTimeout(() => {
                 location.reload();
             }, 300000); // 5 minutes in milliseconds
+
+            // Continuous location tracking (every 30 seconds)
+            setInterval(() => {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            userLocation = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            };
+                            calculateDistances();
+                            loadHospitalCards(); // Reload cards to show updated distances
+                        },
+                        (error) => {
+                            // Silent error handling for continuous tracking
+                        }
+                    );
+                }
+            }, 30000); // Every 30 seconds
+
+            // Check for app updates every hour
+            setInterval(() => {
+                checkForUpdates();
+            }, 3600000); // Every hour
         });
+
+        // Check for app updates
+        function checkForUpdates() {
+            // In production, this would check against a version API
+            // For demo, we'll just log the check
+            console.log('Checking for app updates...');
+            // Could show a notification if update is available
+        }
 
         // Show payment gate
         function showPaymentGate() {
@@ -1615,40 +1647,39 @@
         // Start real-time updates simulation
         function startRealTimeUpdates() {
             setInterval(() => {
-                // Simulate real-time bed changes
-                const icuOccupied = document.getElementById('icuOccupied');
-                const hduOccupied = document.getElementById('hduOccupied');
-                const dialysisOccupied = document.getElementById('dialysisOccupied');
-                const totalAvailable = document.getElementById('totalAvailable');
+                // Simulate real-time bed changes across all hospitals
+                kenyaHospitals.forEach(hospital => {
+                    // Random bed changes (less frequent to be realistic)
+                    const icuChange = Math.random() > 0.85 ? (Math.random() > 0.5 ? 1 : -1) : 0;
+                    const hduChange = Math.random() > 0.85 ? (Math.random() > 0.5 ? 1 : -1) : 0;
+                    const dialysisChange = Math.random() > 0.85 ? (Math.random() > 0.5 ? 1 : -1) : 0;
+                    
+                    hospital.beds.icu.occupied = Math.max(0, Math.min(hospital.beds.icu.total, hospital.beds.icu.occupied + icuChange));
+                    hospital.beds.hdu.occupied = Math.max(0, Math.min(hospital.beds.hdu.total, hospital.beds.hdu.occupied + hduChange));
+                    hospital.beds.dialysis.occupied = Math.max(0, Math.min(hospital.beds.dialysis.total, hospital.beds.dialysis.occupied + dialysisChange));
+                    
+                    hospital.beds.icu.available = hospital.beds.icu.total - hospital.beds.icu.occupied;
+                    hospital.beds.hdu.available = hospital.beds.hdu.total - hospital.beds.hdu.occupied;
+                    hospital.beds.dialysis.available = hospital.beds.dialysis.total - hospital.beds.dialysis.occupied;
+                });
                 
-                // Random small changes
-                const icuChange = Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0;
-                const hduChange = Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0;
-                const dialysisChange = Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0;
+                // Reload hospital cards to show updated data
+                loadHospitalCards();
                 
-                const newIcu = Math.max(0, Math.min(25, parseInt(icuOccupied.textContent) + icuChange));
-                const newHdu = Math.max(0, Math.min(30, parseInt(hduOccupied.textContent) + hduChange));
-                const newDialysis = Math.max(0, Math.min(18, parseInt(dialysisOccupied.textContent) + dialysisChange));
+                // Update summary statistics
+                const totalIcuAvailable = kenyaHospitals.reduce((sum, h) => sum + h.beds.icu.available, 0);
+                const totalHduAvailable = kenyaHospitals.reduce((sum, h) => sum + h.beds.hdu.available, 0);
+                const totalDialysisAvailable = kenyaHospitals.reduce((sum, h) => sum + h.beds.dialysis.available, 0);
                 
-                icuOccupied.textContent = newIcu;
-                hduOccupied.textContent = newHdu;
-                dialysisOccupied.textContent = newDialysis;
-                totalAvailable.textContent = (25 - newIcu) + (30 - newHdu) + (18 - newDialysis);
+                // Update summary display if elements exist
+                const summaryDivs = document.querySelectorAll('.glass-card .text-2xl');
+                if (summaryDivs.length >= 3) {
+                    summaryDivs[0].textContent = kenyaHospitals.length;
+                    summaryDivs[1].textContent = totalIcuAvailable;
+                    summaryDivs[2].textContent = totalDialysisAvailable;
+                }
                 
-                // Update rates
-                const icuRate = Math.round((newIcu / 25) * 100);
-                const hduRate = Math.round((newHdu / 30) * 100);
-                const dialysisRate = Math.round((newDialysis / 18) * 100);
-                
-                document.getElementById('icuRate').textContent = icuRate + '%';
-                document.getElementById('hduRate').textContent = hduRate + '%';
-                document.getElementById('dialysisRate').textContent = dialysisRate + '%';
-                
-                document.getElementById('icuBar').style.width = icuRate + '%';
-                document.getElementById('hduBar').style.width = hduRate + '%';
-                document.getElementById('dialysisBar').style.width = dialysisRate + '%';
-                
-            }, 5000); // Update every 5 seconds
+            }, 10000); // Update every 10 seconds for all hospitals
         }
 
         // Initialize on page load
